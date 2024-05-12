@@ -1,5 +1,8 @@
 package com.example.todoapplication.ui.screens.fragments.mylist.composables
 
+import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,7 +53,12 @@ import com.example.todoapplication.ui.theme.Yellow_1
 import com.example.todoapplication.ui.theme.darkerGrotesqueBold
 import com.example.todoapplication.ui.theme.firaSansNormal
 import com.example.todoapplication.ui.theme.firaSansSemiBold
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TodoItem(
     title: String,
@@ -62,7 +70,17 @@ fun TodoItem(
 ) {
     val color = remember { mutableStateOf(Yellow_1) }
     val btnText = remember { mutableStateOf("Pending") }
-    when (status) {
+    val statusMaker = remember { mutableStateOf("") }
+    if(status != "COMPLETED"){
+        if(isExpired(date)){
+            statusMaker.value = "EXPIRED"
+        }else{
+            statusMaker.value = status
+        }
+    }else{
+       statusMaker.value = status
+    }
+    when (statusMaker.value) {
         "PENDING" -> {
             color.value = Yellow_1
             btnText.value = "Pending"
@@ -232,5 +250,31 @@ fun TodoItem(
         }
 
     }
+}
+
+@SuppressLint("SimpleDateFormat")
+@RequiresApi(Build.VERSION_CODES.O)
+fun isExpired(date: String): Boolean {
+    try {
+        val just = LocalDateTime.now();
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
+        val formattedDate = just.format(formatter)
+        val date1 = simpleDateFormat.parse(formattedDate)
+        val date2 = simpleDateFormat.parse(date)
+
+        if(date1.equals(date2)){
+            return false;
+        }else if(date1.before(date2)){
+            return false;
+        }else if(date1.after(date2)){
+            return true;
+        }else{
+            return false;
+        }
+    }catch (e: IOException){
+        return false;
+    }
+
 }
 
