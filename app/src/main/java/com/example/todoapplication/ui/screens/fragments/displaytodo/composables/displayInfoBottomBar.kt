@@ -1,5 +1,7 @@
 package com.example.todoapplication.ui.screens.fragments.displaytodo.composables
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -10,22 +12,37 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todoapplication.ui.screens.fragments.mylist.composables.isExpired
 import com.example.todoapplication.ui.theme.Blue_1
 import com.example.todoapplication.ui.theme.Green_1
 import com.example.todoapplication.ui.theme.firaSansSemiBold
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DisplayInfoBottomBar(
     onClickSave: ()->Unit,
-    todoStatus: String
+    todoStatus: String,
+    date: String
 ){
-    if(todoStatus == "PENDING"){
+    val statusMaker = remember { mutableStateOf("") }
+    if(todoStatus != "COMPLETED"){
+        if(isExpired(date)){
+            statusMaker.value = "EXPIRED"
+        }else{
+            statusMaker.value = todoStatus
+        }
+    }else{
+        statusMaker.value = todoStatus
+    }
+    if(statusMaker.value == "PENDING"){
         Row(
             horizontalArrangement = Arrangement.SpaceAround,
             modifier = Modifier.fillMaxWidth().background(Color.White)

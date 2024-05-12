@@ -108,7 +108,8 @@ class DisplayTodoFragment : Fragment() {
                                     ).show()
                                     findNavController().popBackStack()
                                 },
-                                todoStatus = args.todo.status
+                                todoStatus = args.todo.status,
+                                date = args.todo.date
                             )
                         }
                     )
