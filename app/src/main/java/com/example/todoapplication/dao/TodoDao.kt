@@ -26,6 +26,6 @@ interface TodoDao {
     @Query("SELECT * FROM todo_table ORDER BY id ASC")
     fun readAllData() : LiveData<List<Todo>>
 
-    @Query("SELECT * FROM todo_table WHERE name LIKE :searchQuery OR status LIKE :searchQuery")
+    @Query("SELECT * FROM todo_table WHERE priority LIKE :searchQuery")
     fun searchDatabase(searchQuery: String): LiveData<List<Todo>>
 }

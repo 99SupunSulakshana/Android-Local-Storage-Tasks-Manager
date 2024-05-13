@@ -2,6 +2,7 @@ package com.example.todoapplication.ui.screens.fragments.mylist
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -52,6 +55,9 @@ class MyTodoListFragment : Fragment() {
         // Inflate the layout for this fragment
         return ComposeView(requireContext()).apply {
             setContent {
+                val scaffoldState: ScaffoldState = rememberScaffoldState()
+                val state = exampleLiveData.observeAsState()
+                Log.d("EXAMPLE", "Recomposing screen - ${state.value}")
                 val todoList by viewModel.getTodoList.observeAsState()
                 val systemUiController = rememberSystemUiController()
                 systemUiController.setSystemBarsColor(Color.White)
@@ -75,7 +81,25 @@ class MyTodoListFragment : Fragment() {
                                             findNavController().navigate(todo)
                                         },
                                         onClickFilter = {
-                                            exampleLiveData.value = System.currentTimeMillis().toString()
+                                            Log.e("MyTodoList", "selected item -> $it")
+                                            when(it){
+                                                "0" -> {
+                                                    searchDB("")
+                                                    exampleLiveData.value = System.currentTimeMillis().toString()
+                                                }
+                                                "1" -> {
+                                                    searchDB("HIGH")
+                                                    exampleLiveData.value = System.currentTimeMillis().toString()
+                                                }
+                                                "2" -> {
+                                                    searchDB("LOW")
+                                                    exampleLiveData.value = System.currentTimeMillis().toString()
+                                                }
+                                                "3" -> {
+                                                    searchDB("MEDIUM")
+                                                    exampleLiveData.value = System.currentTimeMillis().toString()
+                                                }
+                                            }
                                         },
                                         todoList = it1
                                     )
@@ -94,6 +118,12 @@ class MyTodoListFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun searchDB(querySearch: String){
+        val query = "%$querySearch%"
+        Log.e("MyTodoList", "search query -> $querySearch")
+        viewModel.searchTodo(query)
     }
 
 }

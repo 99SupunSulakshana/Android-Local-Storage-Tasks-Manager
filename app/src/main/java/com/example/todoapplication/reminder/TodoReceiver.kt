@@ -44,7 +44,7 @@ class TodoReceiver : BroadcastReceiver() {
         builder.setContentTitle(title)
         builder.setContentText(description)
         builder.setDefaults(NotificationCompat.DEFAULT_ALL)
-        builder.setAutoCancel(true)
+        builder.setAutoCancel(false)
         builder.priority = NotificationCompat.PRIORITY_HIGH
         builder.setContentIntent(pendingIntent)
 

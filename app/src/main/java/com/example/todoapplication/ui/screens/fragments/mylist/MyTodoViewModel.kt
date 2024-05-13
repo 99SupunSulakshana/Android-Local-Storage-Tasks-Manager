@@ -14,7 +14,7 @@ class MyTodoViewModel(
     application: Application
 ): AndroidViewModel(application) {
 
-    private val readAllData: LiveData<List<Todo>>
+    private var readAllData: LiveData<List<Todo>>
     val getTodoList: LiveData<List<Todo>> get() = readAllData
 
     private val repository: TodoRepository
@@ -31,6 +31,9 @@ class MyTodoViewModel(
     }
 
     fun searchTodo(query:String):LiveData<List<Todo>>{
+        readAllData = repository.searchTodo(query)
         return repository.searchTodo(query)
     }
+
+
 }
