@@ -147,11 +147,11 @@ fun AddTodoScreen(
     var expanded by remember { mutableStateOf(false) }
     var text by remember { mutableStateOf("") }
     val items = listOf(
-        "1",
-        "2",
-        "3",
+        "EveryDay",
+        "On Time",
         "None"
     )
+
     Box(
         modifier = Modifier
             .background(Color.White)

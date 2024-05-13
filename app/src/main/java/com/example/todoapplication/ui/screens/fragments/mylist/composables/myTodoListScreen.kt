@@ -1,5 +1,7 @@
 package com.example.todoapplication.ui.screens.fragments.mylist.composables
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -51,10 +53,11 @@ import com.example.todoapplication.ui.theme.Gray_600
 import com.example.todoapplication.ui.theme.darkerGrotesqueBold
 import com.example.todoapplication.ui.theme.firaSansNormal
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyTodoListScreen(
     onItemClick: (todo:Todo)->Unit,
-    onClickFilter: (item:Int)->Unit,
+    onClickFilter: (item:String)->Unit,
     todoList: List<Todo>
 ){
     val lazyListState = rememberLazyListState()
@@ -160,7 +163,7 @@ fun MyTodoListScreen(
                                                 onClick = {
                                                     selectedIndex = index
                                                     expanded = false
-                                                    onClickFilter(index)
+                                                    onClickFilter("$index")
                                                 }) {
                                                 Text(
                                                     text = s,

@@ -145,4 +145,6 @@ dependencies {
     // optional - RxJava2 support for Room
     implementation "androidx.room:room-rxjava2:$room_version"
 
+    //permissions
+    implementation 'com.karumi:dexter:6.2.3'
 }
