@@ -23,7 +23,7 @@ interface TodoDao {
     @Query("DELETE FROM todo_table")
     suspend fun deleteAllTodos()
 
-    @Query("SELECT * FROM todo_table ORDER BY id ASC")
+    @Query("SELECT * FROM todo_table ORDER BY id DESC")
     fun readAllData() : LiveData<List<Todo>>
 
     @Query("SELECT * FROM todo_table WHERE priority LIKE :searchQuery")

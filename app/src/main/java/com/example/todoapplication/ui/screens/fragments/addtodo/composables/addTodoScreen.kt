@@ -166,6 +166,15 @@ fun AddTodoScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
+            Image(
+                painterResource(id = R.drawable.add_image),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .size(height = 150.dp, width = 150.dp)
+                    .fillMaxWidth()
+                    .padding(top = 13.dp, end = 30.dp,start = 30.dp, bottom = 10.dp)
+            )
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -176,7 +185,7 @@ fun AddTodoScreen(
                     onValueChange = {
                         name.value = it
                         showNameError.value =
-                            (name.value.text.isEmpty())
+                            name.value.text.isEmpty()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -209,7 +218,7 @@ fun AddTodoScreen(
                         backgroundColor = Color.White,
                         focusedIndicatorColor = Color.LightGray,
                         unfocusedIndicatorColor = Color.LightGray,
-                        disabledIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.LightGray,
                     )
                 )
                 if (showNameError.value) {
@@ -232,7 +241,7 @@ fun AddTodoScreen(
                     onValueChange = {
                         desc.value = it
                         showDescError.value =
-                            (desc.value.text.isEmpty())
+                            desc.value.text.isEmpty()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -263,7 +272,7 @@ fun AddTodoScreen(
                         backgroundColor = Color.White,
                         focusedIndicatorColor = Color.LightGray,
                         unfocusedIndicatorColor = Color.LightGray,
-                        disabledIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.LightGray,
                     )
                 )
                 if (showDescError.value) {
@@ -282,11 +291,12 @@ fun AddTodoScreen(
             ) {
                 OutlinedTextField(
                     readOnly = true,
+                    enabled = false,
                     value = date.value,
                     onValueChange = {
                         date.value = it
                         showDateError.value =
-                            (date.value.text.isEmpty())
+                            date.value.text.isEmpty()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -340,7 +350,7 @@ fun AddTodoScreen(
                         backgroundColor = Color.White,
                         focusedIndicatorColor = Color.LightGray,
                         unfocusedIndicatorColor = Color.LightGray,
-                        disabledIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.LightGray,
                     )
                 )
                 if (showDateError.value) {
@@ -358,12 +368,13 @@ fun AddTodoScreen(
                 horizontalAlignment = Alignment.Start
             ) {
                 OutlinedTextField(
+                    enabled = false,
                     readOnly = true,
                     value = time.value,
                     onValueChange = {
                         time.value = it
                         showTimeError.value =
-                            (time.value.text.isEmpty())
+                            time.value.text.isEmpty()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -408,7 +419,7 @@ fun AddTodoScreen(
                                     }
                                 )
                                 .size(20.dp),
-                            tint = Gray_600
+                            tint = Color.Black
                         )
                     },
                     colors = TextFieldDefaults.textFieldColors(
@@ -417,7 +428,7 @@ fun AddTodoScreen(
                         backgroundColor = Color.White,
                         focusedIndicatorColor = Color.LightGray,
                         unfocusedIndicatorColor = Color.LightGray,
-                        disabledIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.LightGray,
                     )
                 )
                 if (showTimeError.value) {
@@ -436,16 +447,24 @@ fun AddTodoScreen(
                 horizontalAlignment = Alignment.Start
             ) {
                 OutlinedTextField(
+                    enabled = false,
                     readOnly = true,
                     value = reminder.value,
                     onValueChange = {
                         reminder.value = it
                         showReminderError.value =
-                            (reminder.value.text.isEmpty())
+                            reminder.value.text.isEmpty()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {
+                                expanded = !expanded
+                            }
+                        )
                         .padding(start = 20.dp, top = 20.dp, end = 20.dp),
                     textStyle = TextStyle(Color.Black, fontSize = 18.sp),
                     singleLine = true,
@@ -469,6 +488,7 @@ fun AddTodoScreen(
                         IconButton(onClick = { expanded = !expanded }) {
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
+                                tint = Color.Black,
                                 contentDescription = "Dropdown"
                             )
                         }
@@ -479,7 +499,7 @@ fun AddTodoScreen(
                         backgroundColor = Color.White,
                         focusedIndicatorColor = Color.LightGray,
                         unfocusedIndicatorColor = Color.LightGray,
-                        disabledIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.LightGray,
                     )
                 )
                 DropdownMenu(
@@ -567,10 +587,7 @@ fun AddTodoScreen(
                     }
                 }
             }
-
-
         }
-
     }
 }
 

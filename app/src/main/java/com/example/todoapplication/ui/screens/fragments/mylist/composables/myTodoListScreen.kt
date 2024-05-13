@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -44,12 +45,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todoapplication.R
 import com.example.todoapplication.model.Todo
 import com.example.todoapplication.ui.theme.Blue_1
 import com.example.todoapplication.ui.theme.Gray_600
+import com.example.todoapplication.ui.theme.Gray_900
+import com.example.todoapplication.ui.theme.Green_1
+import com.example.todoapplication.ui.theme.Red_1
+import com.example.todoapplication.ui.theme.Yellow_1
 import com.example.todoapplication.ui.theme.darkerGrotesqueBold
 import com.example.todoapplication.ui.theme.firaSansNormal
 
@@ -71,6 +77,10 @@ fun MyTodoListScreen(
     var expanded by remember { mutableStateOf(false) }
     val rotateState by animateFloatAsState(targetValue = if (expanded) 180f else 0f)
 
+    val filteredHighList = todoList.filter { it.priority == "HIGH" }
+    val filteredLowList = todoList.filter { it.priority == "LOW" }
+    val filteredMediumList = todoList.filter { it.priority == "MEDIUM" }
+
     Box(
         modifier = Modifier
             .background(Color.White)
@@ -82,7 +92,9 @@ fun MyTodoListScreen(
             EmptyTodoScreen()
         }else{
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(top = 20.dp, bottom =50.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 20.dp, bottom = 50.dp),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 state = lazyListState,
@@ -96,6 +108,131 @@ fun MyTodoListScreen(
                         color = Gray_600,
                         modifier = Modifier.padding(start = 0.dp, bottom = 20.dp)
                     )
+                }
+                item {
+                    Row (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 16.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Box(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .weight(1f)
+                        ){
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ){
+                                Box(
+                                    modifier = Modifier.width(60.dp).height(60.dp)  .background(
+                                        color = Red_1, shape = RoundedCornerShape(10.dp)
+                                    ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${filteredHighList.size}",
+                                        fontWeight = FontWeight.W400,
+                                        fontSize = 20.sp,
+                                        fontFamily = firaSansNormal,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(start = 0.dp, bottom = 0.dp),
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Text(
+                                    text = "High",
+                                    fontWeight = FontWeight.W400,
+                                    fontSize = 14.sp,
+                                    fontFamily = firaSansNormal,
+                                    color = Gray_900,
+                                    modifier = Modifier.padding(start = 0.dp, bottom = 0.dp),
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f)
+                        ){
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ){
+                                Box(
+                                    modifier = Modifier.width(60.dp).height(60.dp)  .background(
+                                        color = Green_1, shape = RoundedCornerShape(10.dp)
+                                    ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${filteredLowList.size}",
+                                        fontWeight = FontWeight.W400,
+                                        fontSize = 20.sp,
+                                        fontFamily = firaSansNormal,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(start = 0.dp, bottom = 0.dp),
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Text(
+                                    text = "Low",
+                                    fontWeight = FontWeight.W400,
+                                    fontSize = 14.sp,
+                                    fontFamily = firaSansNormal,
+                                    color = Gray_900,
+                                    modifier = Modifier.padding(start = 0.dp, bottom = 0.dp),
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f)
+                        ){
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ){
+                                Box(
+                                    modifier = Modifier.width(60.dp).height(60.dp)  .background(
+                                        color = Yellow_1, shape = RoundedCornerShape(15.dp)
+                                    ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${filteredMediumList.size}",
+                                        fontWeight = FontWeight.W400,
+                                        fontSize = 20.sp,
+                                        fontFamily = firaSansNormal,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(start = 0.dp, bottom = 0.dp),
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Text(
+                                    text = "Medium",
+                                    fontWeight = FontWeight.W400,
+                                    fontSize = 14.sp,
+                                    fontFamily = firaSansNormal,
+                                    color = Gray_900,
+                                    modifier = Modifier.padding(start = 0.dp, bottom = 0.dp),
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
                 }
 
                 item {
@@ -214,7 +351,7 @@ fun EmptyTodoScreen(){
             modifier = Modifier
                 .size(40.dp, 40.dp)
                 .fillMaxWidth()
-                .padding(top = 13.dp, end = 30.dp,start = 30.dp, bottom = 10.dp)
+                .padding(top = 13.dp, end = 30.dp, start = 30.dp, bottom = 10.dp)
         )
 
         Spacer(modifier = Modifier.height(18.dp))

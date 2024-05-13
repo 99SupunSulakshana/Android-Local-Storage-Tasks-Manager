@@ -1,6 +1,8 @@
 package com.example.todoapplication.ui.screens.fragments.addtodo
 
 import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.ALARM_SERVICE
@@ -18,9 +20,12 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +47,9 @@ import com.example.todoapplication.ui.screens.fragments.mylist.composables.MyTod
 import com.example.todoapplication.ui.screens.fragments.mylist.composables.TopAppBar
 import com.example.todoapplication.ui.screens.splashscreen.SplashVM
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -60,13 +68,15 @@ class AddTodoFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        createNotificationChannel()
         // Inflate the layout for this fragment
         return ComposeView(requireContext()).apply {
             setContent {
                 val systemUiController = rememberSystemUiController()
                 systemUiController.setSystemBarsColor(Color.White)
                 systemUiController.setNavigationBarColor(Color.White)
-
+                val scaffoldState: ScaffoldState = rememberScaffoldState()
+                val coroutineScope: CoroutineScope = rememberCoroutineScope()
                 val name = remember { mutableStateOf(TextFieldValue()) }
                 val desc = remember { mutableStateOf(TextFieldValue()) }
                 val date = remember { mutableStateOf(TextFieldValue()) }
@@ -81,7 +91,6 @@ class AddTodoFragment : Fragment() {
                 val showErrorDate = remember { mutableStateOf(false) }
                 val showErrorTime = remember { mutableStateOf(false) }
                 val showErrorReminder = remember { mutableStateOf(false) }
-                val showErrorPriority = remember { mutableStateOf(false) }
 
                 fun validate(): Boolean {
                     showErrorName.value = name.value.text.isEmpty()
@@ -89,9 +98,8 @@ class AddTodoFragment : Fragment() {
                     showErrorDate.value = date.value.text.isEmpty()
                     showErrorTime.value = time.value.text.isEmpty()
                     showErrorReminder.value = reminder.value.text.isEmpty()
-                    showErrorPriority.value = priority.value.text.isEmpty()
 
-                    return !showErrorName.value && !showErrorDesc.value && !showErrorDate.value && !showErrorTime.value && !showErrorPriority.value && showErrorReminder.value
+                    return !showErrorName.value && !showErrorDesc.value && !showErrorDate.value && !showErrorTime.value && !showErrorReminder.value
                 }
 
                 Box(
@@ -132,32 +140,44 @@ class AddTodoFragment : Fragment() {
                                         "AddTodoFragment",
                                         "name - ${name.value.text}, desc - ${desc.value.text}, date = ${date.value.text}, time = ${time.value.text}, reminder = ${reminder.value.text}, priority = ${selected}, status = ${status.value}"
                                     )
-                                    val todo = Todo(
-                                        id = 0,
-                                        name = name.value.text,
-                                        desc = desc.value.text,
-                                        date = date.value.text,
-                                        time = time.value.text,
-                                        reminder = reminder.value.text,
-                                        priority = selected,
-                                        status = status.value
-                                    )
-                                    viewModel.addTodo(
-                                        todo
-                                    )
-                                    if (reminder.value.text == "EveryDay") {
-                                        setReminderForEveryDay(24*60*60*1000)
-                                    } else if (reminder.value.text == "On Time") {
-                                        setReminder(time.value.text)
-                                    } else {
-                                        cancelReminder()
+                                    if (validate()) {
+                                        if (selected.isNotEmpty()) {
+                                            coroutineScope.launch {
+                                                val todo = Todo(
+                                                    id = 0,
+                                                    name = name.value.text,
+                                                    desc = desc.value.text,
+                                                    date = date.value.text,
+                                                    time = time.value.text,
+                                                    reminder = reminder.value.text,
+                                                    priority = selected,
+                                                    status = status.value
+                                                )
+                                                viewModel.addTodo(
+                                                    todo
+                                                )
+                                                if (reminder.value.text == "EveryDay") {
+                                                    setReminderForEveryDay(24 * 60 * 60 * 1000)
+                                                } else if (reminder.value.text == "On Time") {
+                                                    setReminder(date.value.text, time.value.text)
+                                                } else {
+                                                    cancelReminder()
+                                                }
+                                                Toast.makeText(
+                                                    requireContext(),
+                                                    "Successfully Added!",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                                findNavController().popBackStack()
+                                            }
+                                        } else {
+                                            Toast.makeText(
+                                                requireContext(),
+                                                "please, add your priority!",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
                                     }
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Successfully Added!",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                    findNavController().popBackStack()
                                 }
                             )
                         }
@@ -167,33 +187,59 @@ class AddTodoFragment : Fragment() {
         }
     }
 
+    private fun createNotificationChannel(){
+        Log.e("AddTodoScreen", "create the channel")
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            val name: CharSequence = "todoandroidReminderChannel"
+            val description = "Channel for reminder manager"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel("todoappid", name, importance)
+            channel.description = description
+            val notificationManager = requireActivity().getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun setReminder(time: String) {
+    private fun setReminder(date: String, time: String) {
         Log.e("AddTodoScreen", "start reminder")
+        val reformat = formatTimeString(time)
         val formatter = DateTimeFormatter.ofPattern("HH:mm")
-        val local = LocalTime.parse(time, formatter)
+        val local = LocalTime.parse(reformat, formatter)
         val formattedTime = local.format(formatter)
         val timeString = formattedTime
         val localTime = LocalTime.parse(timeString, formatter)
         val hour = localTime.hour
         val minute = localTime.minute
         println("Hour: $hour, Minute: $minute")
+
+        val formatterDate = DateTimeFormatter.ofPattern("d/M/yyyy")
+        val localDate = LocalDate.parse(date, formatterDate)
+        val year = localDate.year
+        val month = localDate.monthValue
+        val day = localDate.dayOfMonth
+
+        println("Year: $year, Month: $month, Day: $day")
+
         calendar = Calendar.getInstance()
+        calendar[Calendar.YEAR] = year
+        calendar[Calendar.MONTH] = month
+        calendar[Calendar.DAY_OF_MONTH] = day
         calendar[Calendar.HOUR_OF_DAY] = hour
         calendar[Calendar.MINUTE] = minute
         calendar[Calendar.SECOND] = 0
         calendar[Calendar.MILLISECOND] = 0
-        alarmManager = requireContext().getSystemService(ALARM_SERVICE) as AlarmManager
-        val intent = Intent(requireContext(), TodoReceiver::class.java)
+        alarmManager = requireActivity().getSystemService(ALARM_SERVICE) as AlarmManager
+        val intent = Intent(requireActivity(), TodoReceiver::class.java)
         pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             PendingIntent.getBroadcast(
-                requireContext(),
+                requireActivity(),
                 0,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             )
         } else {
-            PendingIntent.getBroadcast(requireContext(), 0, intent, PendingIntent.FLAG_MUTABLE)
+            PendingIntent.getBroadcast(requireActivity(), 0, intent, PendingIntent.FLAG_MUTABLE)
         }
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP, calendar.timeInMillis,
@@ -203,37 +249,48 @@ class AddTodoFragment : Fragment() {
         Toast.makeText(requireContext(), "Reminder Set Successfully!", Toast.LENGTH_LONG).show()
     }
 
-    private fun setReminderForEveryDay(interval: Long){
+    fun formatTimeString(timeString: String): String {
+        val parts = timeString.split(":")
+        val hour = parts[0]
+        val minute = parts.getOrNull(1)?.toIntOrNull()?.let { "%02d".format(it) } ?: ""
+        return "$hour:$minute"
+    }
+
+    private fun setReminderForEveryDay(interval: Long) {
         val triggerMills = System.currentTimeMillis() + interval
         calendar = Calendar.getInstance()
         calendar[Calendar.HOUR_OF_DAY] = 0
         calendar[Calendar.MINUTE] = 0
         calendar[Calendar.SECOND] = 0
         calendar[Calendar.MILLISECOND] = 0
-        alarmManager = requireContext().getSystemService(ALARM_SERVICE) as AlarmManager
-        val intent = Intent(requireContext(), TodoReceiver::class.java)
+        alarmManager = requireActivity().getSystemService(ALARM_SERVICE) as AlarmManager
+        val intent = Intent(requireActivity(), TodoReceiver::class.java)
         pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             PendingIntent.getBroadcast(
-                requireContext(),
+                requireActivity(),
                 0,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             )
         } else {
-            PendingIntent.getBroadcast(requireContext(), 0, intent, PendingIntent.FLAG_MUTABLE)
+            PendingIntent.getBroadcast(requireActivity(), 0, intent, PendingIntent.FLAG_MUTABLE)
         }
-        alarmManager.setRepeating(
+        alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP, triggerMills,
             AlarmManager.INTERVAL_DAY, pendingIntent
         )
 
-        Toast.makeText(requireContext(), "Reminder Set for every day Successfully!", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            requireContext(),
+            "Reminder Set for every day Successfully!",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private fun cancelReminder() {
         Log.e("AddTodoScreen", "cancel reminder")
-        alarmManager = requireContext().getSystemService(ALARM_SERVICE) as AlarmManager
-        val intent = Intent(requireContext(), TodoReceiver::class.java)
+        alarmManager = requireActivity().getSystemService(ALARM_SERVICE) as AlarmManager
+        val intent = Intent(requireActivity(), TodoReceiver::class.java)
         pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             PendingIntent.getBroadcast(
                 requireContext(),

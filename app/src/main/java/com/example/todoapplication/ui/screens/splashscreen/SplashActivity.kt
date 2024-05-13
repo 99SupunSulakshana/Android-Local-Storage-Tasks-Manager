@@ -41,7 +41,7 @@ class SplashActivity : AppCompatActivity() {
         setContent {
             val complete by viewModel.complete.observeAsState(false)
             isComplete.value = complete
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 needPermission()
             }else{
                 if(complete){
@@ -58,7 +58,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun needPermission() {
-        val permissionsArray = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        val permissionsArray = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mutableListOf(
                 Manifest.permission.POST_NOTIFICATIONS,
             )

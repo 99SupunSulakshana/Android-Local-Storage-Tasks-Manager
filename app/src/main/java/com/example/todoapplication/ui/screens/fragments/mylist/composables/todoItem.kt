@@ -49,6 +49,7 @@ import com.example.todoapplication.ui.theme.Gray_200
 import com.example.todoapplication.ui.theme.Gray_400
 import com.example.todoapplication.ui.theme.Gray_600
 import com.example.todoapplication.ui.theme.Green_1
+import com.example.todoapplication.ui.theme.Red_1
 import com.example.todoapplication.ui.theme.Yellow_1
 import com.example.todoapplication.ui.theme.darkerGrotesqueBold
 import com.example.todoapplication.ui.theme.firaSansNormal
@@ -69,6 +70,7 @@ fun TodoItem(
     onClickNext: ()->Unit
 ) {
     val color = remember { mutableStateOf(Yellow_1) }
+    val colorForPriority = remember { mutableStateOf(Yellow_1) }
     val btnText = remember { mutableStateOf("Pending") }
     val statusMaker = remember { mutableStateOf("") }
     if(status != "COMPLETED"){
@@ -96,6 +98,21 @@ fun TodoItem(
             btnText.value = "Expired"
         }
     }
+
+    when (priority) {
+        "HIGH" -> {
+            colorForPriority.value = Red_1
+        }
+
+        "LOW" -> {
+            colorForPriority.value = Green_1
+        }
+
+        "MEDIUM" -> {
+            colorForPriority.value = Yellow_1
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -174,7 +191,7 @@ fun TodoItem(
                                 fontWeight = FontWeight.W400,
                                 fontSize = 14.sp,
                                 fontFamily = firaSansNormal,
-                                color = color.value,
+                                color = colorForPriority.value,
                                 modifier = Modifier.padding(start = 0.dp),
                                 textAlign = TextAlign.Start,
                                 maxLines = 1,
