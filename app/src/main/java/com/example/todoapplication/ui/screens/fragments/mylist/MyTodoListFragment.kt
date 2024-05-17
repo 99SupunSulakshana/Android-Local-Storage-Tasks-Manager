@@ -1,5 +1,6 @@
 package com.example.todoapplication.ui.screens.fragments.mylist
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -30,6 +31,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import com.example.todoapplication.R
 import com.example.todoapplication.model.Todo
+import com.example.todoapplication.ui.screens.addTodoActivity.AddDataActivity
 import com.example.todoapplication.ui.screens.fragments.addtodo.AddTodoViewModel
 import com.example.todoapplication.ui.screens.fragments.mylist.composables.CircularFloatingActionButton
 import com.example.todoapplication.ui.screens.fragments.mylist.composables.MyTodoListScreen
@@ -110,7 +112,9 @@ class MyTodoListFragment : Fragment() {
                         floatingActionButton = {
                             CircularFloatingActionButton(
                                 onClick = {
-                                    findNavController().navigate(R.id.action_myTodoListFragment_to_addTodoFragment)
+                                  //  findNavController().navigate(R.id.action_myTodoListFragment_to_addTodoFragment)
+                                    val intent = Intent(requireContext(), AddDataActivity::class.java)
+                                    startActivity(intent)
                                 }
                             )
                         }

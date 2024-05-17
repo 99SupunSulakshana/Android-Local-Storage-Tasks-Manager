@@ -56,16 +56,6 @@ class TodoReceiver : BroadcastReceiver() {
         builder.setContentIntent(pendingIntent)
 
         val notificationManager = NotificationManagerCompat.from(context)
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            var notificationChannel = notificationManager.getNotificationChannel(channelId)
-//            if (notificationChannel == null) {
-//                val importance = NotificationManager.IMPORTANCE_HIGH
-//                notificationChannel = NotificationChannel(channelId, "todo", importance)
-//                notificationChannel.lightColor = context.getColor(R.color.white)
-//                notificationChannel.enableVibration(true)
-//                notificationManager.createNotificationChannel(notificationChannel)
-//            }
-//        }
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS

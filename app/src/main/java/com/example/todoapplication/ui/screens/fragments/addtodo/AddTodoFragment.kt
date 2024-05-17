@@ -1,12 +1,15 @@
 package com.example.todoapplication.ui.screens.fragments.addtodo
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.ALARM_SERVICE
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
+import android.media.audiofx.BassBoost
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -53,6 +56,9 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import android.provider.Settings
+import androidx.core.app.NotificationManagerCompat
+import com.example.todoapplication.reminder.NotificationReceiver
 
 
 class AddTodoFragment : Fragment() {
@@ -61,7 +67,10 @@ class AddTodoFragment : Fragment() {
     private lateinit var alarmManager: AlarmManager
     private lateinit var pendingIntent: PendingIntent
     private lateinit var calendar: Calendar
-
+    val notificationID = 121
+    val channelID = "channel1"
+    val titleExtra = "titleExtra"
+    val messageExtra = "messageExtra"
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -159,7 +168,11 @@ class AddTodoFragment : Fragment() {
                                                 if (reminder.value.text == "EveryDay") {
                                                     setReminderForEveryDay(24 * 60 * 60 * 1000)
                                                 } else if (reminder.value.text == "On Time") {
-                                                    setReminder(date.value.text, time.value.text)
+                                                //    setReminder(date.value.text, time.value.text)
+                                                    if (checkNotificationPermissions(requireContext())) {
+                                                        // Schedule a notification
+                                                        scheduleNotification(date = date.value.text, time = time.value.text)
+                                                    }
                                                 } else {
                                                     cancelReminder()
                                                 }
@@ -195,7 +208,8 @@ class AddTodoFragment : Fragment() {
             val importance = NotificationManager.IMPORTANCE_HIGH
             val channel = NotificationChannel("todoappid", name, importance)
             channel.description = description
-            val notificationManager = requireActivity().getSystemService(NotificationManager::class.java)
+
+            val notificationManager = requireContext().getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
@@ -303,6 +317,102 @@ class AddTodoFragment : Fragment() {
         }
         alarmManager.cancel(pendingIntent)
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("ScheduleExactAlarm")
+    private fun scheduleNotification(date: String, time: String) {
+        Log.e("AddTodoScreen", "start reminder")
+        val intent = Intent(requireContext(), NotificationReceiver::class.java)
+        val title = "title"
+        val message = "message"
+
+        // Add title and message as extras to the intent
+        intent.putExtra("titleExtra", title)
+        intent.putExtra("messageExtra", message)
+
+        pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.getBroadcast(
+                requireContext(),
+                notificationID,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            )
+        } else {
+            PendingIntent.getBroadcast(requireContext(), notificationID, intent, PendingIntent.FLAG_MUTABLE)
+        }
+
+        // Get the AlarmManager service
+        val alarmManager = requireContext().getSystemService(ALARM_SERVICE) as AlarmManager
+
+        // Get the selected time and schedule the notification
+        val timeForNotiry = getTime(date, time)
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            timeForNotiry,
+            pendingIntent
+        )
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getTime(date:String, time:String): Long {
+        // Get selected time from TimePicker and DatePicker
+        val reformat = formatTimeString(time)
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+        val local = LocalTime.parse(reformat, formatter)
+        val formattedTime = local.format(formatter)
+        val timeString = formattedTime
+        val localTime = LocalTime.parse(timeString, formatter)
+        val hour = localTime.hour
+        val minute = localTime.minute
+        println("Hour: $hour, Minute: $minute")
+
+        val formatterDate = DateTimeFormatter.ofPattern("d/M/yyyy")
+        val localDate = LocalDate.parse(date, formatterDate)
+        val year = localDate.year
+        val month = localDate.monthValue
+        val day = localDate.dayOfMonth
+
+        println("Year: $year, Month: $month, Day: $day")
+
+        // Create a Calendar instance and set the selected date and time
+        val calendar = Calendar.getInstance()
+        calendar.set(year, month, day, hour, minute)
+
+
+        return calendar.timeInMillis
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun checkNotificationPermissions(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager =
+                context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+            val isEnabled = notificationManager.areNotificationsEnabled()
+
+            if (!isEnabled) {
+                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                context.startActivity(intent)
+
+                return false
+            }
+        } else {
+            val areEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
+
+            if (!areEnabled) {
+                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                context.startActivity(intent)
+
+                return false
+            }
+        }
+        return true
+    }
+
 
 
 }

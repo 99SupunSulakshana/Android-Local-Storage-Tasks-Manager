@@ -4,16 +4,19 @@
     package="com.example.todoapplication">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
     <application
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TodoApplication"
-        tools:targetApi="31">
+        android:theme="@style/Theme.TodoApplication">
+        <activity
+            android:name=".ui.screens.addTodoActivity.AddDataActivity"
+            android:exported="false" />
         <activity
             android:name=".reminder.destination.DestinationActivity"
             android:exported="false" />
@@ -34,13 +37,19 @@
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.TodoApplication" />
-        <receiver android:name=".reminder.TodoReceiver"
+        <receiver
+            android:name=".reminder.TodoReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".reminder.NotificationReceiver"
+            android:enabled="true"
+            android:exported="true"
+            />
     </application>
 
 </manifest>

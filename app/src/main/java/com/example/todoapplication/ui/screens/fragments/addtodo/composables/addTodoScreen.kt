@@ -3,7 +3,9 @@ package com.example.todoapplication.ui.screens.fragments.addtodo.composables
 import androidx.compose.foundation.layout.*
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.os.Build
 import android.widget.DatePicker
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -68,8 +70,11 @@ import com.example.todoapplication.ui.theme.Gray_600
 import com.example.todoapplication.ui.theme.Gray_900
 import com.example.todoapplication.ui.theme.darkerGrotesqueBold
 import com.example.todoapplication.ui.theme.firaSansNormal
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddTodoScreen(
@@ -125,7 +130,13 @@ fun AddTodoScreen(
     val mTimePickerDialog = TimePickerDialog(
         mContext,
         { _, mHour: Int, mMinute: Int ->
-            mTime.value = "$mHour:$mMinute"
+            val timeString = "$mHour:$mMinute"
+            val formatter = DateTimeFormatter.ofPattern("HH:mm")
+            val localTime = LocalTime.parse(timeString, formatter)
+            val outputFormatter = DateTimeFormatter.ofPattern("HH:mm")
+            val formattedTime = localTime.format(outputFormatter)
+            mTime.value = formattedTime;
+            println("Formatted time: $formattedTime")
         }, mHour, mMinute, false
     )
 
@@ -264,7 +275,7 @@ fun AddTodoScreen(
                     },
                     keyboardOptions =  KeyboardOptions(
                         keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
+                        imeAction = ImeAction.Done
                     ),
                     colors = TextFieldDefaults.textFieldColors(
                         textColor = Color.Black,
@@ -323,10 +334,6 @@ fun AddTodoScreen(
                             )
                         )
                     },
-                    keyboardOptions =  KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    ),
                     trailingIcon = {
                         Image(
                             painterResource(id = R.drawable.calendar),
@@ -390,10 +397,6 @@ fun AddTodoScreen(
                     textStyle = TextStyle(Color.Black, fontSize = 18.sp),
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
-                    keyboardOptions =  KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    ),
                     placeholder = {
                         Text(
                             text = "Enter task due time",
@@ -480,10 +483,6 @@ fun AddTodoScreen(
                             )
                         )
                     },
-                    keyboardOptions =  KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done
-                    ),
                     trailingIcon = {
                         IconButton(onClick = { expanded = !expanded }) {
                             Icon(

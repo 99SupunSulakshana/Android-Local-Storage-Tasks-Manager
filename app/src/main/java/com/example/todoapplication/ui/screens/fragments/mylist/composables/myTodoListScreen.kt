@@ -80,7 +80,8 @@ fun MyTodoListScreen(
     val filteredHighList = todoList.filter { it.priority == "HIGH" }
     val filteredLowList = todoList.filter { it.priority == "LOW" }
     val filteredMediumList = todoList.filter { it.priority == "MEDIUM" }
-
+    val filteredCompletedList = todoList.filter { it.status == "COMPLETED" }
+    val filteredWithoutCompletedList = todoList.filter { it.status != "COMPLETED" }
     Box(
         modifier = Modifier
             .background(Color.White)
@@ -88,9 +89,7 @@ fun MyTodoListScreen(
         contentAlignment = Alignment.TopCenter
     ){
 
-        if(todoList.isEmpty()) {
-            EmptyTodoScreen()
-        }else{
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -319,7 +318,46 @@ fun MyTodoListScreen(
                         }
                     }
                 }
-                itemsIndexed(items = todoList){_, item ->
+                if(todoList.isEmpty()) {
+                    item {
+                        EmptyTodoScreen()
+                    }
+                }else{
+                    itemsIndexed(items = filteredWithoutCompletedList){_, item ->
+                        TodoItem(
+                            title = item.name,
+                            date = item.date,
+                            time = item.time,
+                            status = item.status,
+                            priority = item.priority,
+                            onClickNext = {
+                                onItemClick(item)
+                            }
+                        )
+                    }
+                }
+
+                if(filteredCompletedList.isNotEmpty()){
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ){
+                            Text(
+                                "Completed Todos",
+                                style = TextStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 24.sp,
+                                    fontFamily = darkerGrotesqueBold,
+                                    color = Color.Black
+                                ),
+                                modifier = Modifier.padding(start = 0.dp, top = 10.dp, bottom = 10.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+                itemsIndexed(items = filteredCompletedList){_, item ->
                     TodoItem(
                         title = item.name,
                         date = item.date,
@@ -331,9 +369,8 @@ fun MyTodoListScreen(
                         }
                     )
                 }
-            }
-        }
 
+            }
     }
 }
 
@@ -345,13 +382,13 @@ fun EmptyTodoScreen(){
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
-            painterResource(id = R.drawable.empty),
+            painterResource(id = R.drawable.empty_list_icon),
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier
-                .size(40.dp, 40.dp)
+                .size(height = 150.dp, width = 150.dp)
                 .fillMaxWidth()
-                .padding(top = 13.dp, end = 30.dp, start = 30.dp, bottom = 10.dp)
+                .padding(top = 13.dp, end = 30.dp,start = 30.dp, bottom = 10.dp)
         )
 
         Spacer(modifier = Modifier.height(18.dp))
@@ -359,9 +396,9 @@ fun EmptyTodoScreen(){
             "No data found!",
             style = TextStyle(
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
+                fontSize = 24.sp,
                 fontFamily = darkerGrotesqueBold,
-                color = Gray_600
+                color = Color.Black
             ),
             modifier = Modifier.padding(start = 0.dp, top = 0.dp, bottom = 4.dp),
             textAlign = TextAlign.Center

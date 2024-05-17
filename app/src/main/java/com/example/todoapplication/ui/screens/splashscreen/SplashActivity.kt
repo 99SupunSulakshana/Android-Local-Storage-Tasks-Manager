@@ -11,6 +11,7 @@ import android.os.Handler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -41,7 +42,7 @@ class SplashActivity : AppCompatActivity() {
         setContent {
             val complete by viewModel.complete.observeAsState(false)
             isComplete.value = complete
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 needPermission()
             }else{
                 if(complete){
@@ -61,9 +62,17 @@ class SplashActivity : AppCompatActivity() {
         val permissionsArray = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mutableListOf(
                 Manifest.permission.POST_NOTIFICATIONS,
+                Manifest.permission.SCHEDULE_EXACT_ALARM
             )
         } else {
-            mutableListOf()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                mutableListOf(
+                    Manifest.permission.SCHEDULE_EXACT_ALARM
+                )
+            } else {
+                mutableListOf()
+            }
+
         }
 
         Dexter.withContext(this)
